@@ -1,0 +1,9 @@
+opencv-python
+Pillow
+numpy
+matplotlib
+scikit-image
+scikit-learn
+scipy
+jupyter
+nbclient

@@ -1,0 +1,50 @@
+digraph GoogleMapsWorkflow {
+  graph [rankdir=TB, bgcolor="#FFFFFF", pad="0.35", nodesep="0.28", ranksep="0.48", splines=polyline,
+         fontname="Arial", fontsize=20, labelloc="t",
+         label="GOOGLE MAPS — HIGH-LEVEL USER & SYSTEM WORKFLOW\nEducational overview; not Google's confidential internal architecture"];
+  node [fontname="Arial", fontsize=10, style="rounded,filled", color="#47627A", penwidth=1.2,
+        fillcolor="#EEF4FA", fontcolor="#17324D", margin="0.16,0.10"];
+  edge [fontname="Arial", fontsize=9, color="#52697C", penwidth=1.15, arrowsize=0.75];
+
+  start [shape=oval, fillcolor="#DDF2E5", color="#4C8A68", label="START\nUser opens Google Maps"];
+  permission [shape=diamond, style="filled", fillcolor="#FFF1D6", color="#C18A2E", label="Location permission\ngranted?"];
+  allow [shape=box, label="Application receives current-location\nupdates when available"];
+  deny [shape=box, fillcolor="#FCE8E6", color="#B75A52", label="Permission denied\nContinue with manual location / search"];
+  search [shape=box, fillcolor="#E5F0FF", label="User enters destination\nor searches for a place"];
+  query [shape=box, label="System processes search query\n(place name, address or destination) "];
+  retrieve [shape=box, label="Retrieve relevant geographic, map\nand place information"];
+  identify [shape=box, label="Identify origin (GPS or manual input)\nand destination"];
+  route [shape=box, fillcolor="#E5F0FF", label="Calculate route and alternatives\nusing available road / path data"];
+  found [shape=diamond, style="filled", fillcolor="#FFF1D6", color="#C18A2E", label="Route\nfound?"];
+  no_route [shape=box, fillcolor="#FCE8E6", color="#B75A52", label="Show that no route is available\nInvite user to change destination / mode"];
+  traffic [shape=box, label="Incorporate traffic information\nwhere available"];
+  display [shape=box, fillcolor="#E5F0FF", label="Display selected route and alternatives\non the map"];
+  begin [shape=oval, fillcolor="#DDF2E5", color="#4C8A68", label="User starts navigation"];
+  updates [shape=box, label="Receive periodic GPS / location updates\nand compare progress with route"];
+  deviation [shape=diamond, style="filled", fillcolor="#FFF1D6", color="#C18A2E", label="Route deviation\ndetected?"];
+  recalc [shape=box, fillcolor="#FCE8E6", color="#B75A52", label="Recalculate route using current\nlocation and available traffic data"];
+  guidance [shape=box, fillcolor="#E5F0FF", label="Continue turn-by-turn guidance\nand update route display"];
+  arrive [shape=diamond, style="filled", fillcolor="#FFF1D6", color="#C18A2E", label="Destination\nreached?"];
+  complete [shape=oval, fillcolor="#DDF2E5", color="#4C8A68", label="ARRIVAL\nNavigation completed"];
+
+  start -> permission;
+  permission -> allow [label="Yes"];
+  permission -> deny [label="No"];
+  allow -> search;
+  deny -> search;
+  search -> query -> retrieve -> identify -> route -> found;
+  found -> traffic [label="Yes"];
+  found -> no_route [label="No"];
+  no_route -> search [label="Try another search", style=dashed, constraint=false];
+  traffic -> display -> begin -> updates -> deviation;
+  deviation -> recalc [label="Yes"];
+  deviation -> guidance [label="No"];
+  recalc -> display [label="Updated route", constraint=false];
+  guidance -> arrive;
+  arrive -> complete [label="Yes"];
+  arrive -> updates [label="No - continue", constraint=false];
+
+  {rank=same; allow; deny}
+  {rank=same; traffic; no_route}
+  {rank=same; recalc; guidance}
+}
